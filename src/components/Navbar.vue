@@ -30,7 +30,7 @@ export default {
 
   .nav{
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     height: 100px;
     width: 100%;
