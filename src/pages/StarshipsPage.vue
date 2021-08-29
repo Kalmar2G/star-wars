@@ -1,53 +1,59 @@
 <template>
-  <v-container>
+  <div class="table-wrapper">
     <table class="table">
       <thead>
       <tr class="table-header">
-        <td class="header__item" style="align-self: center">
-          <button class="my-btn" @click="clearFilter">
-            Clear
-          </button>
+        <td class="table-header__item" style="align-self: center">
+          <div @click="clearFilter">
+            <my-button class="button clear-button">Clear</my-button>
+          </div>
         </td>
-        <td class="header__item">name
-          <input type="text" name="name"
-                 v-model="nameFilter" @input="clearPage(); swStarships = []; fetchStarships();">
+        <td class="table-header__item">
+          name
+          <input class="input" type="text" name="name" v-model="nameFilter" @input="inputAction">
         </td>
-        <td class="header__item">model
-        </td>
-        <td class="header__item">speed</td>
-        <td class="header__item">length</td>
-        <td class="header__item">costs
+        <td class="table-header__item">model</td>
+        <td class="table-header__item">speed</td>
+        <td class="table-header__item">length</td>
+        <td class="table-header__item">costs
         </td>
       </tr>
       </thead>
       <tbody v-if="fetchedStarships">
-      <starship-row-table class="table-row" v-for="starship in swStarships"
-                          :key="starship.id" :starship="starship" @openStarship="openStarship">
+      <starship-row-table class="table-row"
+                          v-for="starship in swStarships"
+                          :key="starship.id" :starship="starship"
+                          @openStarship="openStarship">
       </starship-row-table>
       </tbody>
     </table>
     <div ref="observer"></div>
-    <div class="observer" v-if="!starshipsCount">no matches found</div>
-    <div class="observer" v-if="swStarships.length === starshipsCount && swStarships.length !== 0">
+    <div class="search-status" v-if="!starshipsCount">no matches found</div>
+    <div class="search-status"
+         v-if="swStarships.length === starshipsCount && swStarships.length !== 0">
       all starships loaded
     </div>
-    <div class="observer loader" v-if="swStarships.length < starshipsCount">
-      <div class="center">loading...</div>
-      <button class="my-btn force-load" @click="fetchStarships">force load</button>
+    <div class="search-status search-status_loading" v-if="swStarships.length < starshipsCount">
+      <div class="loading-text">loading...</div>
+      <div class="load-button-wrapper" @click="fetchStarships">
+        <my-button class="button load-button">force load</my-button>
+      </div>
     </div>
     <starship-about :starship="currentStarship" v-model="showAbout"></starship-about>
-  </v-container>
+  </div>
 </template>
 
 <script>
 import { debounce } from 'debounce';
 import StarshipRowTable from '../components/starships/StarshipTableRow.vue';
 import StarshipAbout from '../components/starships/StarshipAbout.vue';
+import MyButton from '../components/MyButton.vue';
 
 export default {
   components: {
     StarshipRowTable,
     StarshipAbout,
+    MyButton,
   },
   data: () => ({
     showAbout: false,
@@ -116,62 +122,67 @@ export default {
       this.currentStarship = starship;
       this.showAbout = true;
     },
+    inputAction() {
+      this.clearPage();
+      this.swStarships = [];
+      this.fetchStarships();
+    },
   },
 };
 </script>
 
 <style scoped>
-.my-btn {
-  border: 2px solid #ebe302;
-  font-size: 15px;
-  width: 70%;
+.table-wrapper {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+.table {
+  border: 1px solid black;
+  text-align: center;
+  width: 100%;
+}
+
+.button.clear-button {
   min-width: 100px;
+  width: 70%;
   height: 35px;
   margin-top: 3px;
-  border-radius: 10px;
-  background: black;
-  cursor: pointer;
 }
 
-.my-btn:hover {
-  border: 3px solid black;
-  background: #ebe302;
-  transition: background 300ms linear;
-}
-
-.loader {
+.search-status_loading {
   display: flex;
   justify-content: space-between;
   position: relative;
 }
 
-.center {
+.loading-text {
   flex: 0 1 auto;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   margin-left: auto;
-
 }
 
-.force-load {
-  width: 100px;
-  font-size: 9px;
-  height: 18px;
+.load-button-wrapper {
   flex: 0 1 auto;
   margin-left: auto;
 }
 
-.observer {
+.button.load-button {
+  vertical-align: top;
+  margin-top: 1px;
+  min-width: 80px;
+  width: 80px;
+  font-size: 9px;
+  height: 18px;
+}
+
+.search-status {
   height: 30px;
   background: #a3a387;
   padding-top: 5px;
-}
-
-.table {
   width: 100%;
-  border: 1px solid black;
-  text-align: center;
 }
 
 .table-header {
@@ -192,17 +203,13 @@ export default {
   background: #fcfca2;
 }
 
-.header__item {
-  flex: 1 1 20%;
-}
-
-.header__item {
+.table-header__item {
   text-transform: uppercase;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-
+  flex: 1 1 20%;
   font-size: 20px;
 }
 
@@ -211,7 +218,7 @@ export default {
   background: #696862;
 }
 
-input {
+.input {
   width: 70%;
   height: 20px;
   font-size: 15px;
@@ -222,13 +229,25 @@ input {
   text-align: center;
 }
 
-select {
-  width: 70%;
-  height: 20px;
-  font-size: 15px;
-  background: white;
-  color: black;
-  outline: none;
-  text-align-last: center;
+@media screen and (max-width: 1000px) {
+  .table-wrapper {
+    width: 1000px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .table-wrapper {
+    width: 700px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .table-wrapper {
+    width: 500px;
+  }
+
+  .button.clear-button {
+    height: 25px;
+  }
 }
 </style>

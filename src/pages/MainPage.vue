@@ -1,7 +1,7 @@
 <template>
-  <v-container class="main-page">
+  <div class="main-page">
     <img class="main-page__picture" src="../assets/mainBackground.jpg" alt="фоточка потерялась">
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -10,15 +10,41 @@ export default {};
 
 <style scoped>
 .main-page {
-  margin-bottom: -10px;
-  padding: 0;
+  width: 1200px;
+  margin: 0 auto;
 }
 
 .main-page__picture {
-  margin: 0 auto;
-  width: 100%;
-  min-width: 300px;
-  max-width: 1000px;
-  height: 590px;
+  width: 1200px;
+}
+
+@media screen and (max-width: 2000px) {
+  .main-page {
+    width: 1200px;
+  }
+
+  .main-page__picture {
+    width: 1200px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .main-page {
+    width: 800px;
+  }
+
+  .main-page__picture {
+    width: 800px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .main-page {
+    width: 500px;
+  }
+
+  .main-page__picture {
+    width: 500px;
+  }
 }
 </style>

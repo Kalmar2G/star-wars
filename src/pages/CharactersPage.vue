@@ -1,20 +1,18 @@
 <template>
-  <v-container>
+  <div class="table-wrapper">
     <table class="table">
       <thead>
       <tr class="table-header">
-        <td class="header__item">
-          <button class="my-btn" @click="clearFilter">
-            Clear
-          </button>
+        <td class="table-header__item">
+          <div @click="clearFilter">
+            <my-button class="button clear-button">Clear</my-button>
+          </div>
         </td>
-        <td class="header__item">name
-          <input type="text" name="name"
-                 v-model="nameFilter"
-                 @input="clearPage(); swPeople = []; fetchPeople();">
+        <td class="table-header__item">name
+          <input class="input" type="text" name="name" v-model="nameFilter" @input="inputAction">
         </td>
-        <td class="header__item">gender
-          <select v-model="selectedGender" @change="filtration">
+        <td class="table-header__item">gender
+          <select class="select" v-model="selectedGender" @change="filtration">
             <option value=""></option>
             <option value="male">male</option>
             <option value="female">female</option>
@@ -22,10 +20,10 @@
             <option value="hermaphrodite">hermaphrodite</option>
           </select>
         </td>
-        <td class="header__item" style="align-self: flex-start;">height</td>
-        <td class="header__item" style="align-self: flex-start;">mass</td>
-        <td class="header__item">eye
-          <select v-model="selectedEyeColor" @change="filtration">
+        <td class="table-header__item" style="align-self: flex-start;">height</td>
+        <td class="table-header__item" style="align-self: flex-start;">mass</td>
+        <td class="table-header__item">eye
+          <select class="select" v-model="selectedEyeColor" @change="filtration">
             <option value=""></option>
             <option value="blue">blue</option>
             <option value="yellow">yellow</option>
@@ -42,35 +40,41 @@
         </td>
       </tr>
       </thead>
-      <tbody v-if="fetchedCharacters">
-      <character-row-table class="table-row" v-for="person in swPeopleFiltered"
-                           :key="person.id" :person="person" @openPerson="openPerson">
+      <tbody class="table-body" v-if="fetchedCharacters">
+      <character-row-table class="table-row"
+                           v-for="person in swPeopleFiltered"
+                           :key="person.id" :person="person"
+                           @openPerson="openPerson">
       </character-row-table>
       </tbody>
     </table>
     <div ref="observer"></div>
-    <div class="observer" v-if="!charactersFilteredCount">no matches found</div>
-    <div class="observer"
+    <div class="search-status" v-if="!charactersFilteredCount">no matches found</div>
+    <div class="search-status"
          v-if="swPeople.length === charactersCount && swPeople.length !== 0">
       all characters loaded
     </div>
-    <div class="observer loader" v-if="swPeople.length < charactersCount">
-      <div class="center">loading...</div>
-      <button class="my-btn force-load" @click="fetchPeople">force load</button>
+    <div class="search-status search-status_loading" v-if="swPeople.length < charactersCount">
+      <div class="loading-text">loading...</div>
+      <div class="load-button-wrapper" @click="fetchPeople">
+        <my-button class="button load-button">force load</my-button>
+      </div>
     </div>
     <person-about :person="currentPerson" v-model="showAbout"/>
-  </v-container>
+  </div>
 </template>
 
 <script>
 import { debounce } from 'debounce';
 import PersonAbout from '../components/characters/CharacterAbout.vue';
 import CharacterRowTable from '../components/characters/CharacterTableRow.vue';
+import MyButton from '../components/MyButton.vue';
 
 export default {
   components: {
     CharacterRowTable,
     PersonAbout,
+    MyButton,
   },
   data: () => ({
     showAbout: false,
@@ -162,63 +166,69 @@ export default {
       this.currentPerson = person;
       this.showAbout = true;
     },
+    inputAction() {
+      this.clearPage();
+      this.swPeople = [];
+      this.fetchPeople();
+    },
   },
 
 };
 </script>
 
 <style scoped>
-.my-btn {
-  border: 2px solid #ebe302;
-  font-size: 15px;
-  width: 70%;
+.table-wrapper {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+.table {
+  border: 1px solid black;
+  text-align: center;
+  width: 100%;
+}
+
+.button.clear-button {
   min-width: 100px;
+  width: 70%;
   height: 35px;
   margin-top: 3px;
-  border-radius: 10px;
-  background: black;
-  cursor: pointer;
 }
 
-.my-btn:hover {
-  border: 3px solid black;
-  background: #ebe302;
-  transition: background 300ms linear;
-}
-
-.loader {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-}
-
-.center {
+.loading-text {
   flex: 0 1 auto;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   margin-left: auto;
-
 }
 
-.force-load {
-  width: 100px;
-  font-size: 9px;
-  height: 18px;
+.load-button-wrapper {
   flex: 0 1 auto;
   margin-left: auto;
 }
 
-.observer {
+.button.load-button {
+  vertical-align: top;
+  margin-top: 1px;
+  min-width: 80px;
+  width: 80px;
+  font-size: 9px;
+  height: 18px;
+}
+
+.search-status {
   height: 30px;
   background: #a3a387;
   padding-top: 5px;
+  width: 100%;
 }
 
-.table {
+.search-status_loading {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
   width: 100%;
-  border: 1px solid black;
-  text-align: center;
 }
 
 .table-header {
@@ -230,6 +240,10 @@ export default {
   text-align: center;
 }
 
+.table-body {
+  width: 100%;
+}
+
 .table-row:nth-of-type(odd) {
   background: #eff0da;
 }
@@ -238,17 +252,13 @@ export default {
   background: #fcfca2;
 }
 
-.header__item {
-  flex: 1 1 20%;
-}
-
-.header__item {
+.table-header__item {
   text-transform: uppercase;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-
+  flex: 1 1 20%;
   font-size: 20px;
 }
 
@@ -257,7 +267,7 @@ export default {
   background: #696862;
 }
 
-input {
+.input {
   width: 70%;
   height: 20px;
   font-size: 15px;
@@ -268,7 +278,7 @@ input {
   text-align: center;
 }
 
-select {
+.select {
   width: 70%;
   height: 20px;
   font-size: 15px;
@@ -276,5 +286,27 @@ select {
   color: black;
   outline: none;
   text-align-last: center;
+}
+
+@media screen and (max-width: 2000px) {
+  .table-wrapper {
+    width: 1000px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .table-wrapper {
+    width: 700px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .table-wrapper {
+    width: 500px;
+  }
+
+  .button.clear-button {
+    height: 25px;
+  }
 }
 </style>

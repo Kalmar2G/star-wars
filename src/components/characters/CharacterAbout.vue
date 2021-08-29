@@ -1,49 +1,44 @@
 <template>
-  <div class="dialog">
   <v-dialog v-model="showAbout" max-width="600px">
     <div class="person-about-wrapper">
-      <h2 class="name">{{ person.name }}</h2>
-      <div class="person-about">
-        <div class="person-info" v-if="loaded">
-          <div class="films-list">
-          <h4>
-            FILMS:
-          </h4>
+      <h2 class="person__name">{{ person.name }}</h2>
+      <div class="person-info" v-if="loaded">
+        <div class="films-list">
+          <h4>FILMS:</h4>
           <ul v-if="films.length">
             <li v-for="film in films" :key="film.name">
-              {{ film.title }}
+              <span class="films-list__film-title">{{ film.title }}</span>
             </li>
           </ul>
-            <span v-else>did not take part in films</span>
-          </div>
-          <div class="spaceships-list">
-            <h4>
-              STARSHIPS:
-            </h4>
-            <ul v-if="starships.length">
-              <li v-for="ship in starships" :key="ship.model">
-                <span class="starship-name">{{ ship.name }}</span>
-                <br>
-                <span class="starship-model">{{ ship.model }}</span>
-              </li>
-            </ul>
-            <span v-else >did not fly the starship</span>
-          </div>
+          <span v-else>did not take part in films</span>
         </div>
-        <p class="loading-info" v-else>
-          LOADING...
-        </p>
+        <div class="starships-list">
+          <h4>STARSHIPS:</h4>
+          <ul v-if="starships.length">
+            <li v-for="ship in starships" :key="ship.model">
+              <span class="starships-list__starship-name">{{ ship.name }}</span>
+              <br>
+              <span class="starships-list__starship-model">{{ ship.model }}</span>
+            </li>
+          </ul>
+          <span v-else>did not fly the starship</span>
+        </div>
       </div>
-      <button class="my-btn" @click="showAbout = false">
-        close
-      </button>
+      <p class="loading-status" v-else>LOADING...</p>
+      <div class="my-button-wrapper" @click="showAbout = false">
+        <my-button class="button close-button">close</my-button>
+      </div>
     </div>
   </v-dialog>
-  </div>
 </template>
 
 <script>
+import MyButton from '../MyButton.vue';
+
 export default {
+  components: {
+    MyButton,
+  },
   props: {
     person: {
       type: Object,
@@ -82,13 +77,18 @@ export default {
         const promises = this.person.films.map((film) => fetch(film));
         Promise.all(promises)
           .then((responses) => Promise.all(responses.map((r) => r.json())))
-          .then((responses) => { this.films = responses; this.loaded = true; });
+          .then((responses) => {
+            this.films = responses;
+            this.loaded = true;
+          });
       }
       if (this.person.starships.length) {
         const promises = this.person.starships.map((ship) => fetch(ship));
         Promise.all(promises)
           .then((responses) => Promise.all(responses.map((r) => r.json())))
-          .then((responses) => { this.starships = responses; });
+          .then((responses) => {
+            this.starships = responses;
+          });
       }
     },
   },
@@ -96,59 +96,48 @@ export default {
 </script>
 
 <style scoped>
-  .person-about-wrapper {
-    background: white;
-    width: 600px;
-    height: 300px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
+.person-about-wrapper {
+  background: white;
+  width: 600px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-  .name {
-    text-align: center;
-    padding-top: 5px;
-  }
-  .my-btn {
-    align-self: center;
-    border: 2px solid #ebe302;
-    font-size: 15px;
-    width: 10%;
-    min-width: 100px;
-    height: 25px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    background: black;
-    cursor: pointer;
-  }
+.person__name {
+  text-align: center;
+  padding-top: 5px;
+}
 
-  .my-btn:hover {
-    border: 3px solid black;
-    background: #ebe302;
-    transition: background 300ms linear;
-  }
+.my-button-wrapper {
+  align-self: center;
+}
 
-  .person-info {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin: 0 30px;
-    height: 200px;
-  }
+.button.close-button {
+  margin-bottom: 10px;
+  width: 10%;
+  min-width: 100px;
+  height: 25px;
+}
 
-  .starship-name{
-    line-height: 10px;
-  }
+.person-info {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin: 0 30px;
+  height: 200px;
+}
 
-  .starship-model{
-    font-size: 10px;
-    line-height: 5px;
-    text-shadow: none;
-    vertical-align: text-top;
-  }
+.starships-list__starship-model {
+  font-size: 10px;
+  line-height: 5px;
+  text-shadow: none;
+  vertical-align: text-top;
+}
 
-  .loading-info {
-    text-align: center;
-    font-size: 20px;
-  }
+.loading-status {
+  text-align: center;
+  font-size: 20px;
+}
 </style>

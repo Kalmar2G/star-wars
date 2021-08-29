@@ -48,50 +48,84 @@ export default {
 }
 
 .content-wrapper {
-  height: 100%;
+  min-height: 100%;
   margin: 0 auto;
   text-align: center;
-  width: 75%;
-  min-width: 690px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100%;
-}
-
-.header {
-  width: 100%;
 }
 
 .header__picture {
-  width: 100%;
-  height: 200px;
-  min-width: 300px;
-  max-width: 1000px;
+  width: 1200px;
 }
 
 .menu {
   width: 100%;
-  min-width: 300px;
-  max-width: 1000px;
 }
 
 .main {
+  max-width: 1200px;
+  width: 1200px !important;
   flex: 1 1 auto;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
 }
 
 .footer {
   height: 35px;
   background: black;
-  width: 100%;
-  min-width: 300px;
-  max-width: 1000px;
+  width: 1200px;
   border: 2px solid #ebe302;
 }
 
 .footer__info {
   margin: 4px;
+}
+
+@media screen and (max-width: 2000px) {
+  .header__picture {
+    width: 1200px;
+  }
+
+  .main {
+    width: 1200px !important;
+  }
+
+  .footer {
+    width: 1200px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .header__picture {
+    width: 800px;
+  }
+
+  .main {
+    width: 800px !important;
+  }
+
+  .footer {
+    width: 800px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  * {
+    font-size: 10px !important;
+  }
+
+  .header__picture {
+    width: 500px;
+  }
+
+  .main {
+    width: 500px !important;
+  }
+
+  .footer {
+    width: 500px;
+  }
 }
 </style>

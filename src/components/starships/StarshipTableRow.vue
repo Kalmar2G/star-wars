@@ -1,14 +1,12 @@
 <template>
-  <v-container class="starship-table-row-wrapper">
-    <tr class="table-row" @click="openPerson">
-      <td class="table-row__data">{{ starship.id }}</td>
-      <td class="table-row__data" style="font-size: 12px"><strong>{{ starship.name }} </strong></td>
-      <td class="table-row__data" style="font-size: 10px">{{ starship.model }}</td>
-      <td class="table-row__data">{{ starship.max_atmosphering_speed }}</td>
-      <td class="table-row__data">{{ starship.length }}</td>
-      <td class="table-row__data" style="font-size: 12px">{{ starship.cost_in_credits }}</td>
-    </tr>
-  </v-container>
+  <tr class="table-row" @click="openPerson">
+    <td class="table-row__data">{{ starship.id }}</td>
+    <td class="table-row__data" style="font-size: 12px"><strong>{{ starship.name }} </strong></td>
+    <td class="table-row__data" style="font-size: 10px">{{ starship.model }}</td>
+    <td class="table-row__data">{{ starship.max_atmosphering_speed }}</td>
+    <td class="table-row__data">{{ starship.length }}</td>
+    <td class="table-row__data" style="font-size: 12px">{{ starship.cost_in_credits }}</td>
+  </tr>
 </template>
 
 <script>
