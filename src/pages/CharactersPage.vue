@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <table class="table" v-if="fetched">
+    <table class="table">
       <thead>
       <tr class="table-header">
         <td class="header__item">
@@ -11,7 +11,7 @@
         <td class="header__item">name
           <input type="text" name="name"
                  v-model="nameFilter"
-                 @input="clearPage(); swPeople = []; fetchPeople();" >
+                 @input="clearPage(); swPeople = []; fetchPeople();">
         </td>
         <td class="header__item">gender
           <select v-model="selectedGender" @change="filtration">
@@ -42,17 +42,18 @@
         </td>
       </tr>
       </thead>
-      <tbody v-if="swPeopleFiltered.length">
-        <character-row-table class="table-row" v-for="person in swPeopleFiltered"
-                   :key="person.id" :person="person" @openPerson="openPerson">
-        </character-row-table>
+      <tbody v-if="fetchedCharacters">
+      <character-row-table class="table-row" v-for="person in swPeopleFiltered"
+                           :key="person.id" :person="person" @openPerson="openPerson">
+      </character-row-table>
       </tbody>
     </table>
     <div ref="observer"></div>
-    <div class="observer" v-if="!swPeopleFiltered.length">no matches found</div>
+    <div class="observer" v-if="!charactersFilteredCount">no matches found</div>
     <div class="observer"
          v-if="swPeople.length === charactersCount && swPeople.length !== 0">
-            all characters loaded</div>
+      all characters loaded
+    </div>
     <div class="observer loader" v-if="swPeople.length < charactersCount">
       <div class="center">loading...</div>
       <button class="my-btn force-load" @click="fetchPeople">force load</button>
@@ -63,12 +64,13 @@
 
 <script>
 import { debounce } from 'debounce';
-import PersonAbout from '../components/PersonAbout.vue';
-import CharacterRowTable from '../components/CharacterRowTable.vue';
+import PersonAbout from '../components/characters/CharacterAbout.vue';
+import CharacterRowTable from '../components/characters/CharacterTableRow.vue';
 
 export default {
   components: {
-    CharacterRowTable, PersonAbout,
+    CharacterRowTable,
+    PersonAbout,
   },
   data: () => ({
     showAbout: false,
@@ -79,10 +81,11 @@ export default {
     nameFilter: '',
     selectedGender: '',
     selectedEyeColor: '',
-    fetched: false,
+    fetchedCharacters: false,
     page: 1,
     maxPage: 9,
-    charactersCount: 0,
+    charactersCount: 1,
+    charactersFilteredCount: 1,
   }),
   mounted() {
     const options = {
@@ -102,7 +105,7 @@ export default {
       this.page = 1;
     },
     fetchPeople: debounce(async function () {
-      this.fetched = true;
+      this.fetchedCharacters = true;
       if (this.page > this.maxPage) {
         return;
       }
@@ -111,7 +114,8 @@ export default {
       if (data.next !== null) {
         const { next } = data;
         // eslint-disable-next-line prefer-destructuring
-        this.page = +next.split('').reverse()[0];
+        this.page = +next.split('')
+          .reverse()[0];
       } else {
         this.page = this.maxPage + 1;
       }
@@ -139,6 +143,7 @@ export default {
         filteredPeople = filteredPeople
           .filter((person) => person.eye_color === this.selectedEyeColor);
       }
+      this.charactersFilteredCount = filteredPeople.length;
       this.swPeopleFiltered = filteredPeople;
     },
     clearFilter() {
@@ -149,7 +154,8 @@ export default {
       this.swPeople = [];
       this.page = 1;
       this.maxPage = 10;
-      this.charactersCount = 0;
+      this.charactersCount = 1;
+      this.charactersFilteredCount = 1;
       this.fetchPeople();
     },
     openPerson(person) {
@@ -162,109 +168,113 @@ export default {
 </script>
 
 <style scoped>
-  .my-btn {
-    border: 2px solid #ebe302;
-    font-size: 15px;
-    width: 70%;
-    min-width: 100px;
-    height: 35px;
-    margin-top: 3px;
-    border-radius: 10px;
-    background: black;
-    cursor: pointer;
-  }
+.my-btn {
+  border: 2px solid #ebe302;
+  font-size: 15px;
+  width: 70%;
+  min-width: 100px;
+  height: 35px;
+  margin-top: 3px;
+  border-radius: 10px;
+  background: black;
+  cursor: pointer;
+}
 
-  .my-btn:hover {
-    border: 3px solid black;
-    background: #ebe302;
-    transition: background 300ms linear;
-  }
+.my-btn:hover {
+  border: 3px solid black;
+  background: #ebe302;
+  transition: background 300ms linear;
+}
 
-  .loader {
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-  }
+.loader {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
 
-  .center {
-    flex: 0 1 auto;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-left: auto;
+.center {
+  flex: 0 1 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-left: auto;
 
-  }
+}
 
-  .force-load {
-    width: 100px;
-    font-size: 9px;
-    height: 18px;
-    flex: 0 1 auto;
-    margin-left: auto;
-  }
+.force-load {
+  width: 100px;
+  font-size: 9px;
+  height: 18px;
+  flex: 0 1 auto;
+  margin-left: auto;
+}
 
-  .observer {
-    height: 30px;
-    background: #a3a387;
-    padding-top: 5px;
-  }
-  .table {
-    width:100%;
-    border:1px solid black;
-    text-align: center;
-  }
+.observer {
+  height: 30px;
+  background: #a3a387;
+  padding-top: 5px;
+}
 
-  .table-header {
-    display:flex;
-    justify-content: space-between;
-    width:100%;
-    background: #24241f;
-    padding: 5px 0;
-    text-align: center;
-  }
-  .table-row:nth-of-type(odd) {
-    background: #eff0da;
-  }
+.table {
+  width: 100%;
+  border: 1px solid black;
+  text-align: center;
+}
 
-  .table-row:nth-of-type(even) {
-    background: #fcfca2;
-  }
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  background: #24241f;
+  padding: 5px 0;
+  text-align: center;
+}
 
-  .header__item {
-    flex: 1 1 20%;
-  }
+.table-row:nth-of-type(odd) {
+  background: #eff0da;
+}
 
-  .header__item {
-    text-transform:uppercase;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
+.table-row:nth-of-type(even) {
+  background: #fcfca2;
+}
 
-    font-size: 20px;
-  }
+.header__item {
+  flex: 1 1 20%;
+}
 
-  .table-row:hover {
-    border: 1px solid black;
-    background: #696862;
-  }
-  input {
-    width: 70%;
-    height: 20px;
-    font-size: 15px;
-    background: white;
-    color: black;
-    outline: none;
-    box-sizing: border-box;
-    text-align: center;
-  }
-  select {
-    width: 70%;
-    height: 20px;
-    font-size: 15px;
-    background: white;
-    color: black;
-    outline: none;
-    text-align-last: center;
-  }
+.header__item {
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+
+  font-size: 20px;
+}
+
+.table-row:hover {
+  border: 1px solid black;
+  background: #696862;
+}
+
+input {
+  width: 70%;
+  height: 20px;
+  font-size: 15px;
+  background: white;
+  color: black;
+  outline: none;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+select {
+  width: 70%;
+  height: 20px;
+  font-size: 15px;
+  background: white;
+  color: black;
+  outline: none;
+  text-align-last: center;
+}
 </style>

@@ -1,43 +1,39 @@
 <template>
-  <div class="dialog">
   <v-dialog v-model="showAbout" max-width="600px">
     <div class="starship-about-wrapper">
-      <h2 class="name">{{ starship.name }}</h2>
-      <div class="starship-about">
-        <div class="starship-info" v-if="loaded">
-          <div class="films-list">
-            <h4>
-              FILMS:
-            </h4>
-            <ul v-if="films.length">
-              <li v-for="film in films" :key="film.name">
-                {{ film.title }}
-              </li>
-            </ul>
-            <span v-else>did not use in films</span>
-          </div>
-          <div class="pilots-list">
-            <h4>
-              PILOTS:
-            </h4>
-            <ul v-if="pilots.length">
-              <li v-for="pilot in pilots" :key="pilot.name">
-                <span class="pilot-name">{{ pilot.name }}</span>
-              </li>
-            </ul>
-            <span v-else>the starship did not use</span>
-          </div>
+      <h2 class="starship-name">{{ starship.name }}</h2>
+      <div class="starship-info" v-if="loaded">
+        <div class="starship-films-list">
+          <h4>
+            FILMS:
+          </h4>
+          <ul v-if="films.length">
+            <li v-for="film in films" :key="film.name">
+              <span class="starship-films-list__film-title">{{ film.title }}</span>
+            </li>
+          </ul>
+          <span v-else>did not use in films</span>
         </div>
-        <p class="loading-info" v-else>
-          LOADING...
-        </p>
+        <div class="starship-pilots-list">
+          <h4>
+            PILOTS:
+          </h4>
+          <ul v-if="pilots.length">
+            <li v-for="pilot in pilots" :key="pilot.name">
+              <span class="starship-pilots-list__pilot-name">{{ pilot.name }}</span>
+            </li>
+          </ul>
+          <span v-else>the starship did not use</span>
+        </div>
       </div>
+      <p class="loading-status" v-else>
+        LOADING...
+      </p>
       <button class="my-btn" @click="showAbout = false">
         close
       </button>
     </div>
   </v-dialog>
-  </div>
 </template>
 
 <script>
@@ -80,13 +76,18 @@ export default {
         const promises = this.starship.films.map((film) => fetch(film));
         Promise.all(promises)
           .then((responses) => Promise.all(responses.map((r) => r.json())))
-          .then((responses) => { this.films = responses; this.loaded = true; });
+          .then((responses) => {
+            this.films = responses;
+            this.loaded = true;
+          });
       }
       if (this.starship.pilots.length) {
         const promises = this.starship.pilots.map((pilot) => fetch(pilot));
         Promise.all(promises)
           .then((responses) => Promise.all(responses.map((r) => r.json())))
-          .then((responses) => { this.pilots = responses; });
+          .then((responses) => {
+            this.pilots = responses;
+          });
       }
     },
   },
@@ -103,10 +104,11 @@ export default {
   justify-content: space-between;
 }
 
-.name {
+.starship-name {
   text-align: center;
   padding-top: 5px;
 }
+
 .my-btn {
   align-self: center;
   border: 2px solid #ebe302;
@@ -134,12 +136,12 @@ export default {
   height: 200px;
 }
 
-.loading-info {
+.loading-status {
   text-align: center;
   font-size: 20px;
 }
 
-.pilot-name {
+.starship-pilots-list__pilot-name {
   line-height: 10px;
 }
 </style>

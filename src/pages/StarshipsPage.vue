@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <table class="table" v-if="fetchedStarships">
+    <table class="table">
       <thead>
       <tr class="table-header">
         <td class="header__item" style="align-self: center">
@@ -20,16 +20,17 @@
         </td>
       </tr>
       </thead>
-      <tbody>
+      <tbody v-if="fetchedStarships">
       <starship-row-table class="table-row" v-for="starship in swStarships"
-                 :key="starship.id" :starship="starship" @openStarship="openStarship">
+                          :key="starship.id" :starship="starship" @openStarship="openStarship">
       </starship-row-table>
       </tbody>
     </table>
     <div ref="observer"></div>
     <div class="observer" v-if="!starshipsCount">no matches found</div>
     <div class="observer" v-if="swStarships.length === starshipsCount && swStarships.length !== 0">
-      all starships loaded</div>
+      all starships loaded
+    </div>
     <div class="observer loader" v-if="swStarships.length < starshipsCount">
       <div class="center">loading...</div>
       <button class="my-btn force-load" @click="fetchStarships">force load</button>
@@ -40,12 +41,13 @@
 
 <script>
 import { debounce } from 'debounce';
-import StarshipRowTable from '../components/StarshipRowTable.vue';
-import StarshipAbout from '../components/StarshipAbout.vue';
+import StarshipRowTable from '../components/starships/StarshipTableRow.vue';
+import StarshipAbout from '../components/starships/StarshipAbout.vue';
 
 export default {
   components: {
-    StarshipRowTable, StarshipAbout,
+    StarshipRowTable,
+    StarshipAbout,
   },
   data: () => ({
     showAbout: false,
@@ -56,7 +58,7 @@ export default {
     fetchedStarships: false,
     page: 1,
     maxPage: 4,
-    starshipsCount: 0,
+    starshipsCount: 1,
   }),
   mounted() {
     const options = {
@@ -85,7 +87,8 @@ export default {
       if (data.next !== null) {
         const { next } = data;
         // eslint-disable-next-line prefer-destructuring
-        this.page = +next.split('').reverse()[0];
+        this.page = +next.split('')
+          .reverse()[0];
       } else {
         this.page = this.maxPage + 1;
       }
@@ -106,7 +109,7 @@ export default {
       this.swStarships = [];
       this.page = 1;
       this.maxPage = 4;
-      this.starshipsCount = 0;
+      this.starshipsCount = 1;
       this.fetchStarships();
     },
     openStarship(starship) {
@@ -164,21 +167,23 @@ export default {
   background: #a3a387;
   padding-top: 5px;
 }
+
 .table {
-  width:100%;
-  border:1px solid black;
+  width: 100%;
+  border: 1px solid black;
   text-align: center;
 }
 
 .table-header {
-  display:flex;
+  display: flex;
   justify-content: space-between;
-  width:100%;
+  width: 100%;
   background: #24241f;
   padding: 5px 0;
   align-items: flex-start;
   text-align: center;
 }
+
 .table-row:nth-of-type(odd) {
   background: #eff0da;
 }
@@ -192,7 +197,7 @@ export default {
 }
 
 .header__item {
-  text-transform:uppercase;
+  text-transform: uppercase;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -205,6 +210,7 @@ export default {
   border: 1px solid black;
   background: #696862;
 }
+
 input {
   width: 70%;
   height: 20px;
@@ -215,6 +221,7 @@ input {
   box-sizing: border-box;
   text-align: center;
 }
+
 select {
   width: 70%;
   height: 20px;
