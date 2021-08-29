@@ -10,11 +10,12 @@
         </td>
         <td class="header__item">name
           <input type="text" name="name"
-                 v-model="nameFilter" @input="clearPage(); fetchPeople();">
+                 v-model="nameFilter"
+                 @input="clearPage(); swPeople = []; fetchPeople();" >
         </td>
         <td class="header__item">gender
           <select v-model="selectedGender" @change="filtration">
-            <option disabled value=""></option>
+            <option value=""></option>
             <option value="male">male</option>
             <option value="female">female</option>
             <option value="n/a">n/a</option>
@@ -25,7 +26,7 @@
         <td class="header__item" style="align-self: flex-start;">mass</td>
         <td class="header__item">eye
           <select v-model="selectedEyeColor" @change="filtration">
-            <option disabled value=""></option>
+            <option value=""></option>
             <option value="blue">blue</option>
             <option value="yellow">yellow</option>
             <option value="red">red</option>
@@ -42,25 +43,32 @@
       </tr>
       </thead>
       <tbody v-if="swPeopleFiltered.length">
-        <row-table class="table-row" v-for="person in swPeopleFiltered"
+        <character-row-table class="table-row" v-for="person in swPeopleFiltered"
                    :key="person.id" :person="person" @openPerson="openPerson">
-        </row-table>
+        </character-row-table>
       </tbody>
-      <div class="observer" v-else>no matches found</div>
     </table>
     <div ref="observer"></div>
-    <div class="observer" v-if="page === 10">ALL CHARACTERS LOADED</div>
+    <div class="observer" v-if="!swPeopleFiltered.length">no matches found</div>
+    <div class="observer"
+         v-if="swPeople.length === charactersCount && swPeople.length !== 0">
+            all characters loaded</div>
+    <div class="observer loader" v-if="swPeople.length < charactersCount">
+      <div class="center">loading...</div>
+      <button class="my-btn force-load" @click="fetchPeople">force load</button>
+    </div>
     <person-about :person="currentPerson" v-model="showAbout"/>
   </v-container>
 </template>
 
 <script>
-import RowTable from '../components/CharacterRowTable.vue';
+import { debounce } from 'debounce';
 import PersonAbout from '../components/PersonAbout.vue';
+import CharacterRowTable from '../components/CharacterRowTable.vue';
 
 export default {
   components: {
-    RowTable, PersonAbout,
+    CharacterRowTable, PersonAbout,
   },
   data: () => ({
     showAbout: false,
@@ -68,12 +76,13 @@ export default {
     swPeople: [],
     swPeopleFiltered: [],
     currentPerson: {},
-    personId: 0,
     nameFilter: '',
     selectedGender: '',
     selectedEyeColor: '',
     fetched: false,
     page: 1,
+    maxPage: 9,
+    charactersCount: 0,
   }),
   mounted() {
     const options = {
@@ -92,32 +101,34 @@ export default {
     clearPage() {
       this.page = 1;
     },
-    async fetchPeople() {
+    fetchPeople: debounce(async function () {
       this.fetched = true;
-      if (this.page > 9) {
+      if (this.page > this.maxPage) {
         return;
       }
-      const response = await fetch(`${this.baseURL}${this.nameFilter}&page=${this.nameFilter ? '' : this.page}`);
+      const response = await fetch(`${this.baseURL}${this.nameFilter}&page=${this.page}`);
       const data = await response.json();
+      if (data.next !== null) {
+        const { next } = data;
+        // eslint-disable-next-line prefer-destructuring
+        this.page = +next.split('').reverse()[0];
+      } else {
+        this.page = this.maxPage + 1;
+      }
+      this.charactersCount = data.count;
+      this.maxPage = Math.ceil(data.count / 10) || 1;
       data.results.forEach((person) => {
         /* eslint-disable-next-line */
-        person.id = this.personId += 1;
+        person.id = Number(person.url.slice(29, person.url.length - 1));
       });
-      if (this.nameFilter) {
-        this.personId = 0;
-        this.page = 1;
+      if (this.page === 1) {
         this.swPeople = [...data.results];
       } else {
-        if (this.page === 1) {
-          this.swPeople = [...data.results];
-        } else {
-          this.swPeople = [...this.swPeople, ...data.results];
-        }
-        this.page += 1;
+        this.swPeople = [...this.swPeople, ...data.results];
       }
       this.swPeopleFiltered = [...this.swPeople];
       this.filtration();
-    },
+    }, 500),
     filtration() {
       let filteredPeople = [...this.swPeople];
       if (this.selectedGender) {
@@ -137,7 +148,8 @@ export default {
       this.swPeopleFiltered = [];
       this.swPeople = [];
       this.page = 1;
-      this.personId = 0;
+      this.maxPage = 10;
+      this.charactersCount = 0;
       this.fetchPeople();
     },
     openPerson(person) {
@@ -166,6 +178,29 @@ export default {
     border: 3px solid black;
     background: #ebe302;
     transition: background 300ms linear;
+  }
+
+  .loader {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .center {
+    flex: 0 1 auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-left: auto;
+
+  }
+
+  .force-load {
+    width: 100px;
+    font-size: 9px;
+    height: 18px;
+    flex: 0 1 auto;
+    margin-left: auto;
   }
 
   .observer {

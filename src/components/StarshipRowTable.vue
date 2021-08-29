@@ -39,5 +39,6 @@ export default {
   align-items: center;
   height: 70px;
   padding: 5px 0;
+  cursor: pointer;
 }
 </style>

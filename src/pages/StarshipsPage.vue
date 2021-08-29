@@ -10,7 +10,7 @@
         </td>
         <td class="header__item">name
           <input type="text" name="name"
-                 v-model="nameFilter" @input="clearPage(); fetchStarships(); starshipId = 0;">
+                 v-model="nameFilter" @input="clearPage(); swStarships = []; fetchStarships();">
         </td>
         <td class="header__item">model
         </td>
@@ -27,12 +27,19 @@
       </tbody>
     </table>
     <div ref="observer"></div>
-    <div class="observer" v-if="page === 5">ALL STARSHIPS LOADED</div>
+    <div class="observer" v-if="!starshipsCount">no matches found</div>
+    <div class="observer" v-if="swStarships.length === starshipsCount && swStarships.length !== 0">
+      all starships loaded</div>
+    <div class="observer loader" v-if="swStarships.length < starshipsCount">
+      <div class="center">loading...</div>
+      <button class="my-btn force-load" @click="fetchStarships">force load</button>
+    </div>
     <starship-about :starship="currentStarship" v-model="showAbout"></starship-about>
   </v-container>
 </template>
 
 <script>
+import { debounce } from 'debounce';
 import StarshipRowTable from '../components/StarshipRowTable.vue';
 import StarshipAbout from '../components/StarshipAbout.vue';
 
@@ -44,12 +51,12 @@ export default {
     showAbout: false,
     baseURL: new URL('https://swapi.dev/api/starships?search='),
     swStarships: [],
-    swStarshipsFiltered: [],
     currentStarship: {},
-    starshipId: 0,
     nameFilter: '',
     fetchedStarships: false,
     page: 1,
+    maxPage: 4,
+    starshipsCount: 0,
   }),
   mounted() {
     const options = {
@@ -68,35 +75,38 @@ export default {
     clearPage() {
       this.page = 1;
     },
-    async fetchStarships() {
+    fetchStarships: debounce(async function () {
       this.fetchedStarships = true;
-      if (this.page > 4) {
+      if (this.page > this.maxPage) {
         return;
       }
-      const response = await fetch(`${this.baseURL}${this.nameFilter}&page=${this.nameFilter ? '' : this.page}`);
+      const response = await fetch(`${this.baseURL}${this.nameFilter}&page=${this.page}`);
       const data = await response.json();
+      if (data.next !== null) {
+        const { next } = data;
+        // eslint-disable-next-line prefer-destructuring
+        this.page = +next.split('').reverse()[0];
+      } else {
+        this.page = this.maxPage + 1;
+      }
+      this.starshipsCount = data.count;
+      this.maxPage = Math.ceil(data.count / 10) || 1;
       data.results.forEach((ship) => {
         /* eslint-disable-next-line */
-        ship.id = this.starshipId += 1;
+        ship.id = Number(ship.url.slice(32, ship.url.length - 1));
       });
-      if (this.nameFilter) {
-        this.starshipId = 0;
-        this.page = 1;
+      if (this.page === 1) {
         this.swStarships = [...data.results];
       } else {
-        if (this.page === 1) {
-          this.swStarships = [...data.results];
-        } else {
-          this.swStarships = [...this.swStarships, ...data.results];
-        }
-        this.page += 1;
+        this.swStarships = [...this.swStarships, ...data.results];
       }
-    },
+    }, 500),
     clearFilter() {
       this.nameFilter = '';
       this.swStarships = [];
       this.page = 1;
-      this.starshipId = 0;
+      this.maxPage = 4;
+      this.starshipsCount = 0;
       this.fetchStarships();
     },
     openStarship(starship) {
@@ -104,7 +114,6 @@ export default {
       this.showAbout = true;
     },
   },
-
 };
 </script>
 
@@ -125,6 +134,29 @@ export default {
   border: 3px solid black;
   background: #ebe302;
   transition: background 300ms linear;
+}
+
+.loader {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.center {
+  flex: 0 1 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-left: auto;
+
+}
+
+.force-load {
+  width: 100px;
+  font-size: 9px;
+  height: 18px;
+  flex: 0 1 auto;
+  margin-left: auto;
 }
 
 .observer {

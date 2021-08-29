@@ -38,6 +38,7 @@ export default {
     justify-content: space-between;
     height: 70px;
     padding: 5px 0;
+    cursor: pointer;
 
   }
 </style>

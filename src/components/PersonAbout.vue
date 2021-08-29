@@ -1,38 +1,45 @@
 <template>
+  <div class="dialog">
   <v-dialog v-model="showAbout" max-width="600px">
     <div class="person-about-wrapper">
       <h2 class="name">{{ person.name }}</h2>
       <div class="person-about">
-        <div class="films-list">
-        <h4>
-          FILMS:
-        </h4>
-        <ul v-if="films.length">
-          <li v-for="film in films" :key="film.name">
-            {{ film.title }}
-          </li>
-        </ul>
-          <span v-else>did not take part in films</span>
-        </div>
-        <div class="spaceships-list">
+        <div class="person-info" v-if="loaded">
+          <div class="films-list">
           <h4>
-            STARSHIPS:
+            FILMS:
           </h4>
-          <ul v-if="starships.length">
-            <li v-for="ship in starships" :key="ship.model">
-              <span class="starship-name">{{ ship.name }}</span>
-              <br>
-              <span class="starship-model">{{ ship.model }}</span>
+          <ul v-if="films.length">
+            <li v-for="film in films" :key="film.name">
+              {{ film.title }}
             </li>
           </ul>
-          <span v-else >did not fly the starship</span>
+            <span v-else>did not take part in films</span>
+          </div>
+          <div class="spaceships-list">
+            <h4>
+              STARSHIPS:
+            </h4>
+            <ul v-if="starships.length">
+              <li v-for="ship in starships" :key="ship.model">
+                <span class="starship-name">{{ ship.name }}</span>
+                <br>
+                <span class="starship-model">{{ ship.model }}</span>
+              </li>
+            </ul>
+            <span v-else >did not fly the starship</span>
+          </div>
         </div>
+        <p class="loading-info" v-else>
+          LOADING...
+        </p>
       </div>
       <button class="my-btn" @click="showAbout = false">
         close
       </button>
     </div>
   </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -53,12 +60,13 @@ export default {
     films: [],
     starships: [],
     showAbout: false,
+    loaded: false,
   }),
   watch: {
     value(newValue) {
       if (newValue) {
-        this.fetchFilms();
-        this.fetchStarships();
+        this.loaded = false;
+        this.fetchData();
       }
       this.showAbout = newValue;
     },
@@ -67,24 +75,20 @@ export default {
     },
   },
   methods: {
-    async fetchFilms() {
+    async fetchData() {
       this.films = [];
-      if (this.person.films.length) {
-        this.person.films.map(async (film) => {
-          const response = await fetch(film);
-          const data = await response.json();
-          this.films.push(data);
-        });
-      }
-    },
-    async fetchStarships() {
       this.starships = [];
+      if (this.person.films.length) {
+        const promises = this.person.films.map((film) => fetch(film));
+        Promise.all(promises)
+          .then((responses) => Promise.all(responses.map((r) => r.json())))
+          .then((responses) => { this.films = responses; this.loaded = true; });
+      }
       if (this.person.starships.length) {
-        this.person.starships.map(async (ship) => {
-          const response = await fetch(ship);
-          const data = await response.json();
-          this.starships.push(data);
-        });
+        const promises = this.person.starships.map((ship) => fetch(ship));
+        Promise.all(promises)
+          .then((responses) => Promise.all(responses.map((r) => r.json())))
+          .then((responses) => { this.starships = responses; });
       }
     },
   },
@@ -98,7 +102,7 @@ export default {
     height: 300px;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: space-between;
   }
 
   .name {
@@ -112,7 +116,7 @@ export default {
     width: 10%;
     min-width: 100px;
     height: 25px;
-    margin-top: 3px;
+    margin-bottom: 10px;
     border-radius: 10px;
     background: black;
     cursor: pointer;
@@ -124,10 +128,12 @@ export default {
     transition: background 300ms linear;
   }
 
-  .person-about {
+  .person-info {
     display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    margin: 20px 30px;
+    margin: 0 30px;
+    height: 200px;
   }
 
   .starship-name{
@@ -139,5 +145,10 @@ export default {
     line-height: 5px;
     text-shadow: none;
     vertical-align: text-top;
+  }
+
+  .loading-info {
+    text-align: center;
+    font-size: 20px;
   }
 </style>

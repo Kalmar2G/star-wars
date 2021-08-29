@@ -4,28 +4,33 @@
     <div class="starship-about-wrapper">
       <h2 class="name">{{ starship.name }}</h2>
       <div class="starship-about">
-        <div class="films-list">
-          <h4>
-            FILMS:
-          </h4>
-          <ul v-if="films.length">
-            <li v-for="film in films" :key="film.name">
-              {{ film.title }}
-            </li>
-          </ul>
-          <span v-else>did not use in films</span>
+        <div class="starship-info" v-if="loaded">
+          <div class="films-list">
+            <h4>
+              FILMS:
+            </h4>
+            <ul v-if="films.length">
+              <li v-for="film in films" :key="film.name">
+                {{ film.title }}
+              </li>
+            </ul>
+            <span v-else>did not use in films</span>
+          </div>
+          <div class="pilots-list">
+            <h4>
+              PILOTS:
+            </h4>
+            <ul v-if="pilots.length">
+              <li v-for="pilot in pilots" :key="pilot.name">
+                <span class="pilot-name">{{ pilot.name }}</span>
+              </li>
+            </ul>
+            <span v-else>the starship did not use</span>
+          </div>
         </div>
-        <div class="pilots-list">
-          <h4>
-            PILOTS:
-          </h4>
-          <ul v-if="pilots.length">
-            <li v-for="pilot in pilots" :key="pilot.name">
-              <span class="pilot-name">{{ pilot.name }}</span>
-            </li>
-          </ul>
-          <span v-else>the starship did not use</span>
-        </div>
+        <p class="loading-info" v-else>
+          LOADING...
+        </p>
       </div>
       <button class="my-btn" @click="showAbout = false">
         close
@@ -53,12 +58,13 @@ export default {
     films: [],
     pilots: [],
     showAbout: false,
+    loaded: false,
   }),
   watch: {
     value(newValue) {
       if (newValue) {
-        this.fetchFilms();
-        this.fetchSPilots();
+        this.loaded = false;
+        this.fetchData();
       }
       this.showAbout = newValue;
     },
@@ -67,24 +73,20 @@ export default {
     },
   },
   methods: {
-    async fetchFilms() {
+    async fetchData() {
       this.films = [];
-      if (this.starship.films.length) {
-        this.starship.films.map(async (film) => {
-          const response = await fetch(film);
-          const data = await response.json();
-          this.films.push(data);
-        });
-      }
-    },
-    async fetchSPilots() {
       this.pilots = [];
+      if (this.starship.films.length) {
+        const promises = this.starship.films.map((film) => fetch(film));
+        Promise.all(promises)
+          .then((responses) => Promise.all(responses.map((r) => r.json())))
+          .then((responses) => { this.films = responses; this.loaded = true; });
+      }
       if (this.starship.pilots.length) {
-        this.starship.pilots.map(async (pilot) => {
-          const response = await fetch(pilot);
-          const data = await response.json();
-          this.pilots.push(data);
-        });
+        const promises = this.starship.pilots.map((pilot) => fetch(pilot));
+        Promise.all(promises)
+          .then((responses) => Promise.all(responses.map((r) => r.json())))
+          .then((responses) => { this.pilots = responses; });
       }
     },
   },
@@ -98,7 +100,7 @@ export default {
   height: 300px;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .name {
@@ -112,7 +114,7 @@ export default {
   width: 10%;
   min-width: 100px;
   height: 25px;
-  margin-top: 3px;
+  margin-bottom: 10px;
   border-radius: 10px;
   background: black;
   cursor: pointer;
@@ -124,10 +126,17 @@ export default {
   transition: background 300ms linear;
 }
 
-.starship-about {
+.starship-info {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  margin: 20px 30px;
+  margin: 0 30px;
+  height: 200px;
+}
+
+.loading-info {
+  text-align: center;
+  font-size: 20px;
 }
 
 .pilot-name {
