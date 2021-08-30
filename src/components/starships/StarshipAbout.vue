@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="showAbout" max-width="600px">
+  <v-dialog :value="value" max-width="600px" @click:outside="closeAbout">
     <div class="starship-about-wrapper">
       <h2 class="starship__name">{{ starship.name }}</h2>
       <div class="starship-info" v-if="loaded">
@@ -23,7 +23,7 @@
         </div>
       </div>
       <p class="loading-status" v-else>LOADING...</p>
-      <div class="my-button-wrapper" @click="showAbout = false">
+      <div class="my-button-wrapper" @click="closeAbout">
         <my-button class="button close-button">close</my-button>
       </div>
     </div>
@@ -46,13 +46,9 @@ export default {
       type: Boolean,
     },
   },
-  created() {
-    this.showAbout = this.value;
-  },
   data: () => ({
     films: [],
     pilots: [],
-    showAbout: false,
     loaded: false,
   }),
   watch: {
@@ -61,13 +57,12 @@ export default {
         this.loaded = false;
         this.fetchData();
       }
-      this.showAbout = newValue;
-    },
-    showAbout(newValue) {
-      this.$emit('input', newValue);
     },
   },
   methods: {
+    closeAbout() {
+      this.$emit('input', false);
+    },
     async fetchData() {
       this.films = [];
       this.pilots = [];

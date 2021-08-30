@@ -5,7 +5,7 @@
         <img src="./assets/header.png" alt="" class="header__picture">
       </header>
       <button class="button-background-toggle"
-              @click="color === 'white' ? color = 'black' : color = 'white'">
+              @click="backgroundToggle">
         <img class="button-background-toggle__picture" src="./assets/lamp.png"
              alt="потерялся котенок">
       </button>
@@ -35,6 +35,15 @@ export default {
   data: () => ({
     color: 'white',
   }),
+  methods: {
+    backgroundToggle() {
+      if (this.color === 'white') {
+        this.color = 'black';
+      } else {
+        this.color = 'white';
+      }
+    },
+  },
 };
 </script>
 
@@ -66,7 +75,7 @@ export default {
 
 .main {
   max-width: 1200px;
-  width: 1200px !important;
+  width: 1200px;
   flex: 1 1 auto;
   margin: 0 auto;
   padding: 0;

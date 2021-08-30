@@ -16,6 +16,10 @@ const routes = [
     path: '/starships',
     component: () => import('@/pages/StarshipsPage.vue'),
   },
+  {
+    path: '/*',
+    component: () => import('@/pages/MainPage.vue'),
+  },
 ];
 export default new VueRouter({
   mode: 'history',
