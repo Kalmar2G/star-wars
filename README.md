@@ -1,5 +1,7 @@
 # swapi
 
+### [deploy](https://star-wars-api-mu.vercel.app/)
+
 ## Project setup
 ```
 yarn install
