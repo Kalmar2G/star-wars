@@ -5,17 +5,17 @@
       <tr class="table-header">
         <td class="table-header__item" style="align-self: center">
           <div @click="clearFilter">
-            <my-button class="button clear-button">Clear</my-button>
+            <my-button class="button clear-button"><span>Clear</span></my-button>
           </div>
         </td>
         <td class="table-header__item">
-          name
+          <span>name</span>
           <input class="input" type="text" name="name" v-model="nameFilter" @input="inputAction">
         </td>
-        <td class="table-header__item">model</td>
-        <td class="table-header__item">speed</td>
-        <td class="table-header__item">length</td>
-        <td class="table-header__item">costs
+        <td class="table-header__item"><span>model</span></td>
+        <td class="table-header__item"><span>speed</span></td>
+        <td class="table-header__item"><span>length</span></td>
+        <td class="table-header__item"><span>costs</span>
         </td>
       </tr>
       </thead>
@@ -28,15 +28,15 @@
       </tbody>
     </table>
     <div ref="observer"></div>
-    <div class="search-status" v-if="!starshipsCount">no matches found</div>
+    <div class="search-status" v-if="!starshipsCount"><span>no matches found</span></div>
     <div class="search-status"
          v-if="swStarships.length === starshipsCount && swStarships.length !== 0">
-      all starships loaded
+      <span>all starships loaded</span>
     </div>
     <div class="search-status search-status_loading" v-if="swStarships.length < starshipsCount">
-      <div class="loading-text">loading...</div>
+      <div class="loading-text"><span>loading...</span></div>
       <div class="load-button-wrapper" @click="fetchStarships">
-        <my-button class="button load-button">force load</my-button>
+        <my-button class="button load-button"><span>force load</span></my-button>
       </div>
     </div>
     <starship-about :starship="currentStarship" v-model="showAbout"></starship-about>
@@ -49,6 +49,8 @@ import StarshipRowTable from '../components/starships/StarshipTableRow.vue';
 import StarshipAbout from '../components/starships/StarshipAbout.vue';
 import MyButton from '../components/MyButton.vue';
 
+const baseURL = new URL('https://swapi.dev/api/starships');
+
 export default {
   components: {
     StarshipRowTable,
@@ -57,7 +59,6 @@ export default {
   },
   data: () => ({
     showAbout: false,
-    baseURL: new URL('https://swapi.dev/api/starships?search='),
     swStarships: [],
     currentStarship: {},
     nameFilter: '',
@@ -67,16 +68,13 @@ export default {
     starshipsCount: 1,
   }),
   mounted() {
-    const options = {
-      rootMargin: '0px',
-      threshold: 1.0,
-    };
-    const callback = (entries) => {
+    const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
         this.fetchStarships();
       }
-    };
-    const observer = new IntersectionObserver(callback, options);
+    }, {
+      threshold: 1.0,
+    });
     observer.observe(this.$refs.observer);
   },
   methods: {
@@ -88,11 +86,14 @@ export default {
       if (this.page > this.maxPage) {
         return;
       }
-      const response = await fetch(`${this.baseURL}${this.nameFilter}&page=${this.page}`);
+      baseURL.search = new URLSearchParams({
+        search: this.nameFilter,
+        page: `${this.page}`,
+      }).toString();
+      const response = await fetch(baseURL.toString());
       const data = await response.json();
       if (data.next !== null) {
         const { next } = data;
-        // eslint-disable-next-line prefer-destructuring
         this.page = +next.split('')
           .reverse()[0];
       } else {
@@ -100,10 +101,10 @@ export default {
       }
       this.starshipsCount = data.count;
       this.maxPage = Math.ceil(data.count / 10) || 1;
-      data.results.forEach((ship) => {
-        /* eslint-disable-next-line */
-        ship.id = Number(ship.url.slice(32, ship.url.length - 1));
-      });
+      data.results = data.results.map((ship) => ({
+        ...ship,
+        id: Number(ship.url.slice(32, ship.url.length - 1)),
+      }));
       if (this.page === 1) {
         this.swStarships = [...data.results];
       } else {
@@ -219,6 +220,7 @@ export default {
 }
 
 .input {
+  font-family: 'Bungee Inline', cursive;
   width: 70%;
   height: 20px;
   font-size: 15px;

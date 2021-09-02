@@ -5,13 +5,13 @@
       <tr class="table-header">
         <td class="table-header__item">
           <div @click="clearFilter">
-            <my-button class="button clear-button">Clear</my-button>
+            <my-button class="button clear-button"><span>Clear</span></my-button>
           </div>
         </td>
-        <td class="table-header__item">name
+        <td class="table-header__item"><span>name</span>
           <input class="input" type="text" name="name" v-model="nameFilter" @input="inputAction">
         </td>
-        <td class="table-header__item">gender
+        <td class="table-header__item"><span>gender</span>
           <select class="select" v-model="selectedGender" @change="filtration">
             <option value=""></option>
             <option value="male">male</option>
@@ -20,9 +20,9 @@
             <option value="hermaphrodite">hermaphrodite</option>
           </select>
         </td>
-        <td class="table-header__item" style="align-self: flex-start;">height</td>
-        <td class="table-header__item" style="align-self: flex-start;">mass</td>
-        <td class="table-header__item">eye
+        <td class="table-header__item" style="align-self: flex-start;"><span>height</span></td>
+        <td class="table-header__item" style="align-self: flex-start;"><span>mass</span></td>
+        <td class="table-header__item"><span>eye</span>
           <select class="select" v-model="selectedEyeColor" @change="filtration">
             <option value=""></option>
             <option value="blue">blue</option>
@@ -49,15 +49,15 @@
       </tbody>
     </table>
     <div ref="observer"></div>
-    <div class="search-status" v-if="!charactersFilteredCount">no matches found</div>
+    <div class="search-status" v-if="!charactersFilteredCount"><span>no matches found</span></div>
     <div class="search-status"
          v-if="swPeople.length === charactersCount && swPeople.length !== 0">
-      all characters loaded
+      <span>all characters loaded</span>
     </div>
     <div class="search-status search-status_loading" v-if="swPeople.length < charactersCount">
-      <div class="loading-text">loading...</div>
+      <div class="loading-text"><span>loading...</span></div>
       <div class="load-button-wrapper" @click="fetchPeople">
-        <my-button class="button load-button">force load</my-button>
+        <my-button class="button load-button"><span>force load</span></my-button>
       </div>
     </div>
     <person-about :person="currentPerson" v-model="showAbout"/>
@@ -70,6 +70,8 @@ import PersonAbout from '../components/characters/CharacterAbout.vue';
 import CharacterRowTable from '../components/characters/CharacterTableRow.vue';
 import MyButton from '../components/MyButton.vue';
 
+const baseURL = new URL('https://swapi.dev/api/people');
+
 export default {
   components: {
     CharacterRowTable,
@@ -78,7 +80,6 @@ export default {
   },
   data: () => ({
     showAbout: false,
-    baseURL: new URL('https://swapi.dev/api/people?search='),
     swPeople: [],
     swPeopleFiltered: [],
     currentPerson: {},
@@ -92,16 +93,13 @@ export default {
     charactersFilteredCount: 1,
   }),
   mounted() {
-    const options = {
-      rootMargin: '0px',
-      threshold: 1.0,
-    };
-    const callback = (entries) => {
+    const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
         this.fetchPeople();
       }
-    };
-    const observer = new IntersectionObserver(callback, options);
+    }, {
+      threshold: 1.0,
+    });
     observer.observe(this.$refs.observer);
   },
   methods: {
@@ -113,11 +111,14 @@ export default {
       if (this.page > this.maxPage) {
         return;
       }
-      const response = await fetch(`${this.baseURL}${this.nameFilter}&page=${this.page}`);
+      baseURL.search = new URLSearchParams({
+        search: this.nameFilter,
+        page: `${this.page}`,
+      }).toString();
+      const response = await fetch(baseURL.toString());
       const data = await response.json();
       if (data.next !== null) {
         const { next } = data;
-        // eslint-disable-next-line prefer-destructuring
         this.page = +next.split('')
           .reverse()[0];
       } else {
@@ -125,10 +126,10 @@ export default {
       }
       this.charactersCount = data.count;
       this.maxPage = Math.ceil(data.count / 10) || 1;
-      data.results.forEach((person) => {
-        /* eslint-disable-next-line */
-        person.id = Number(person.url.slice(29, person.url.length - 1));
-      });
+      data.results = data.results.map((person) => ({
+        ...person,
+        id: Number(person.url.slice(29, person.url.length - 1)),
+      }));
       if (this.page === 1) {
         this.swPeople = [...data.results];
       } else {
@@ -268,6 +269,7 @@ export default {
 }
 
 .input {
+  font-family: 'Bungee Inline', cursive;
   width: 70%;
   height: 20px;
   font-size: 15px;
@@ -279,6 +281,7 @@ export default {
 }
 
 .select {
+  font-family: 'Bungee Inline', cursive;
   width: 70%;
   height: 20px;
   font-size: 15px;

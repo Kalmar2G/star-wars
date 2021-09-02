@@ -24,7 +24,7 @@
       </div>
       <p class="loading-status" v-else>LOADING...</p>
       <div class="my-button-wrapper" @click="closeAbout">
-        <my-button class="button close-button">close</my-button>
+        <my-button class="button close-button"><span>close</span></my-button>
       </div>
     </div>
   </v-dialog>

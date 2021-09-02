@@ -2,15 +2,15 @@
   <v-container class="wrapper">
     <div class="navigation">
       <router-link to="/">
-        <my-button>Main
+        <my-button><span>Main</span>
         </my-button>
       </router-link>
       <router-link to="/characters">
-        <my-button>Characters
+        <my-button><span>Characters</span>
         </my-button>
       </router-link>
       <router-link to="/starships">
-        <my-button>Starships</my-button>
+        <my-button><span>Starships</span></my-button>
       </router-link>
     </div>
   </v-container>

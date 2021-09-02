@@ -1,21 +1,22 @@
 <template>
   <tr class="table-row" @click="openPerson">
-    <td class="table-row__data">{{ person.id }}</td>
+    <td class="table-row__data"><span>{{ person.id }}</span></td>
     <td class="table-row__data">
         <span v-for="(word, index) in splitName"
               :key="index">
           <strong v-if="index < 2">
-            {{ word }}
+            <span>{{ word }}</span>
           </strong>
           <span v-else>...</span>
         </span>
     </td>
     <td class="table-row__data"
-        style="overflow:hidden; white-space:nowrap;text-overflow: ellipsis;">{{ person.gender }}
+        style="overflow:hidden; white-space:nowrap;text-overflow: ellipsis;">
+      <span>{{ person.gender }}</span>
     </td>
-    <td class="table-row__data">{{ person.height }}</td>
-    <td class="table-row__data">{{ person.mass }}</td>
-    <td class="table-row__data">{{ person.eye_color }}</td>
+    <td class="table-row__data"><span>{{ person.height }}</span></td>
+    <td class="table-row__data"><span>{{ person.mass }}</span></td>
+    <td class="table-row__data"><span>{{ person.eye_color }}</span></td>
   </tr>
 </template>
 

@@ -48,10 +48,9 @@ export default {
 </script>
 
 <style>
-* {
-  opacity: 0.99;
+h1, h2, h3, h4, h5, h6, p, span, option, input, select {
   font-family: 'Bungee Inline', cursive;
-  color: black;
+  color: rgba(0, 0, 0, 0.99);
   text-shadow: #ebe302 1px 1px 0, #ebe302 -1px -1px 0,
   #ebe302 -1px 1px 0, #ebe302 1px -1px 0;
 }
@@ -98,7 +97,7 @@ export default {
   }
 
   .main {
-    width: 1200px !important;
+    width: 1200px;
   }
 
   .footer {
@@ -112,7 +111,7 @@ export default {
   }
 
   .main {
-    width: 800px !important;
+    width: 800px;
   }
 
   .footer {
@@ -122,7 +121,7 @@ export default {
 
 @media screen and (max-width: 900px) {
   * {
-    font-size: 10px !important;
+    font-size: 10px;
   }
 
   .header__picture {
@@ -130,7 +129,7 @@ export default {
   }
 
   .main {
-    width: 500px !important;
+    width: 500px;
   }
 
   .footer {
