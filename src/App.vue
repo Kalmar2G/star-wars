@@ -106,6 +106,10 @@ h1, h2, h3, h4, h5, h6, p, span, option, input, select {
 }
 
 @media screen and (max-width: 1200px) {
+  h1, h2, h3, h4, h5, h6, p, span, option, input, select {
+    font-size: 0.9em;
+  }
+
   .header__picture {
     width: 800px;
   }
@@ -120,8 +124,8 @@ h1, h2, h3, h4, h5, h6, p, span, option, input, select {
 }
 
 @media screen and (max-width: 900px) {
-  * {
-    font-size: 10px;
+  h1, h2, h3, h4, h5, h6, p, span, option, input, select {
+    font-size: 0.7em;
   }
 
   .header__picture {

@@ -2,12 +2,12 @@
   <tr class="table-row" @click="openPerson">
     <td class="table-row__data"><span>{{ person.id }}</span></td>
     <td class="table-row__data">
-        <span v-for="(word, index) in splitName"
+        <span v-for="(word, index) in name"
               :key="index">
           <strong v-if="index < 2">
-            <span>{{ word }}</span>
+            {{ word }}
           </strong>
-          <span v-else>...</span>
+          <strong v-else>...</strong>
         </span>
     </td>
     <td class="table-row__data"
@@ -29,7 +29,7 @@ export default {
     },
   },
   created() {
-    this.name = `${this.person.name}`;
+    this.name = `${this.person.name}`.split(' ');
   },
   data: () => ({
     name: '',
@@ -37,11 +37,6 @@ export default {
   methods: {
     openPerson() {
       this.$emit('openPerson', this.person);
-    },
-  },
-  computed: {
-    splitName() {
-      return this.name.split(' ');
     },
   },
 };
