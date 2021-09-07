@@ -97,8 +97,6 @@ export default {
       if (entries[0].isIntersecting) {
         this.fetchPeople();
       }
-    }, {
-      threshold: 1.0,
     });
     observer.observe(this.$refs.observer);
   },

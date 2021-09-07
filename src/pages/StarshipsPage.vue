@@ -72,8 +72,6 @@ export default {
       if (entries[0].isIntersecting) {
         this.fetchStarships();
       }
-    }, {
-      threshold: 1.0,
     });
     observer.observe(this.$refs.observer);
   },
