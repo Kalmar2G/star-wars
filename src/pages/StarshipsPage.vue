@@ -90,13 +90,6 @@ export default {
       }).toString();
       const response = await fetch(baseURL.toString());
       const data = await response.json();
-      if (data.next !== null) {
-        const { next } = data;
-        this.page = +next.split('')
-          .reverse()[0];
-      } else {
-        this.page = this.maxPage + 1;
-      }
       this.starshipsCount = data.count;
       this.maxPage = Math.ceil(data.count / 10) || 1;
       data.results = data.results.map((ship) => ({
@@ -107,6 +100,13 @@ export default {
         this.swStarships = [...data.results];
       } else {
         this.swStarships = [...this.swStarships, ...data.results];
+      }
+      if (data.next !== null) {
+        const { next } = data;
+        this.page = +next.split('')
+          .reverse()[0];
+      } else {
+        this.page = this.maxPage + 1;
       }
     }, 500),
     clearFilter() {

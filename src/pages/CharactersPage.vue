@@ -115,13 +115,6 @@ export default {
       }).toString();
       const response = await fetch(baseURL.toString());
       const data = await response.json();
-      if (data.next !== null) {
-        const { next } = data;
-        this.page = +next.split('')
-          .reverse()[0];
-      } else {
-        this.page = this.maxPage + 1;
-      }
       this.charactersCount = data.count;
       this.maxPage = Math.ceil(data.count / 10) || 1;
       data.results = data.results.map((person) => ({
@@ -134,6 +127,13 @@ export default {
         this.swPeople = [...this.swPeople, ...data.results];
       }
       this.swPeopleFiltered = [...this.swPeople];
+      if (data.next !== null) {
+        const { next } = data;
+        this.page = +next.split('')
+          .reverse()[0];
+      } else {
+        this.page = this.maxPage + 1;
+      }
       this.filtration();
     }, 500),
     filtration() {
@@ -168,6 +168,7 @@ export default {
     inputAction() {
       this.clearPage();
       this.swPeople = [];
+      this.swPeopleFiltered = [];
       this.fetchPeople();
     },
   },
